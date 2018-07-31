@@ -1,0 +1,52 @@
+﻿<UserControl x:Class="FileBackuper.LogPanel"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+          xmlns:flat="clr-namespace:WpfControls.FlatStyle;assembly=WpfControls"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid>
+        <TabControl  SelectionChanged="TabControl_SelectionChanged" Style="{StaticResource styleTabControl}">
+            <TabItem Header="当前日志" Style="{StaticResource styleTabItem}">
+                <flat:ListView x:Name="lvwSimpleLog">
+                    <flat:ListView.View>
+                        <GridView>
+                            <GridView.Columns>
+                                <GridViewColumn Header="时间" DisplayMemberBinding="{Binding Time}"/>
+                                <GridViewColumn Header="任务名称" DisplayMemberBinding="{Binding TaskName}"/>
+                                <GridViewColumn Header="任务状态" DisplayMemberBinding="{Binding DisplayStatus}"/>
+                                <GridViewColumn Header="信息" Width="540" DisplayMemberBinding="{Binding Infomation}"/>
+                            </GridView.Columns>
+                        </GridView>
+                    </flat:ListView.View>
+                </flat:ListView>
+
+            </TabItem>
+
+            <TabItem Header="所有日志" PreviewMouseDown="TabItem_PreviewMouseDown" Style="{StaticResource styleTabItem}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="4"/>
+                        <ColumnDefinition Width="3*"/>
+                    </Grid.ColumnDefinitions>
+                    <flat:ListBox x:Name="lbxHistory" SelectionChanged="lbxHistory_SelectionChanged"/>
+                    <flat:ListView x:Name="lvwHistoryLog" Grid.Column="2">
+                        <flat:ListView.View>
+                            <GridView>
+                                <GridView.Columns>
+                                    <GridViewColumn Header="时间" DisplayMemberBinding="{Binding Time}"/>
+                                    <GridViewColumn Header="任务名称" DisplayMemberBinding="{Binding TaskName}"/>
+                                    <GridViewColumn Header="任务状态" DisplayMemberBinding="{Binding DisplayStatus}"/>
+                                    <GridViewColumn Header="信息" Width="540" DisplayMemberBinding="{Binding Infomation}"/>
+                                </GridView.Columns>
+                            </GridView>
+                        </flat:ListView.View>
+                    </flat:ListView>
+
+                </Grid>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</UserControl>
