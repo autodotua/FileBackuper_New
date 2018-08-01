@@ -66,6 +66,7 @@ namespace FileBackuper
             info.WhiteList = new List<string>(lbxWhite.Items.Cast<string>());
             info.BlackList = new List<string>(lbxBlack.Items.Cast<string>());
             info.TargetRootDirectory = txtTargetDirectory.Text;
+            info.RealTime = cbbCheckMode.SelectedIndex ==1;
             info.Name = txtName.Text;
 
             set.ConfigPaths.Remove(lastConfigPath);
@@ -104,7 +105,7 @@ namespace FileBackuper
             txtName.Text = info.Name;
             txtTargetDirectory.Text = info.TargetRootDirectory;
             timeInterval.TimeSpan = TimeSpan.FromSeconds(info.Interval);
-
+            cbbCheckMode.SelectedIndex = info.RealTime ?1 : 0;
 
         }
 
@@ -156,6 +157,24 @@ namespace FileBackuper
                         lbxBlack.Items.Remove(seletedItem);
                     }
                     break;
+            }
+        }
+
+        private void cbbCheckMode_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if(tbkIntervalInfo==null)
+            {
+                return;
+            }
+           if ( cbbCheckMode.SelectedIndex==0)
+            {
+                tbkIntervalInfo.Text = "每隔：";
+                //timeInterval.TimeSpan = TimeSpan.FromMinutes(10);
+            }
+            else
+            {
+                tbkIntervalInfo.Text = "缓冲时间：";
+                //timeInterval.TimeSpan = TimeSpan.FromSeconds(10);
             }
         }
     }

@@ -17,6 +17,7 @@ namespace FileBackuper
         public string DisplayWhiteList => WpfCodes.Basic.Enumerable.StringListToString(WhiteList, "、");
         public List<string> BlackList { get; set; } = new List<string>();
         public string TargetRootDirectory { get; set; } = "";
+        public bool RealTime { get; set; }
         [JsonIgnore]
         public string TargetBackupDirectory
         {

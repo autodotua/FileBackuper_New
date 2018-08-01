@@ -20,7 +20,7 @@
         <Grid >
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="4"/>
+                <ColumnDefinition Width="8"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
@@ -46,7 +46,7 @@
             <!--<TextBlock Text="白名单" VerticalAlignment="Center" HorizontalAlignment="Center"/>
             <TextBlock Text="黑名单" VerticalAlignment="Center" Grid.Row="2" HorizontalAlignment="Center"/>-->
             <TextBlock Text="备份目录" VerticalAlignment="Center" Grid.Row="4" HorizontalAlignment="Right"/>
-            <TextBlock Text="备份间隔时间" VerticalAlignment="Center" Grid.Row="6" HorizontalAlignment="Right"/>
+            <TextBlock Text="检查方式" VerticalAlignment="Center" Grid.Row="6" HorizontalAlignment="Right"/>
             <TextBlock Text="备份名称" VerticalAlignment="Center" Grid.Row="8" HorizontalAlignment="Right"/>
             <flat:Button Padding="16,4" Margin="4,2"  Content="保存" VerticalAlignment="Center" Grid.Row="10" HorizontalAlignment="Right" Grid.Column="2" Click="OKButtonClickEventHandler"/>
 
@@ -113,7 +113,22 @@
                     <ComboBoxItem Content="日"/>
                 </flat:UneditableComboBox>
             </Grid>-->
-            <picker:TimePicker HorizontalAlignment="Right" x:Name="timeInterval" Grid.Column="2" Grid.Row="6" LimitMode="TimeSpan"/>
+            <Grid HorizontalAlignment="Right" Grid.Column="2" Grid.Row="6">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="8"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="4"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <flat:UneditableComboBox x:Name="cbbCheckMode" SelectedIndex="0" Width="96" SelectionChanged="cbbCheckMode_SelectionChanged">
+                    <ComboBoxItem>时间间隔</ComboBoxItem>
+                    <ComboBoxItem>实时</ComboBoxItem>
+                </flat:UneditableComboBox>
+                <TextBlock x:Name="tbkIntervalInfo" Grid.Column="2" Width="72" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                <picker:TimePicker  x:Name="timeInterval" Grid.Column="4"  LimitMode="TimeSpan"/>
+
+            </Grid>
 
             <flat:TextBox  Name="txtName" Grid.Row="8" Grid.Column="2"  MaxLines="1" MaxLength="20"/>
 

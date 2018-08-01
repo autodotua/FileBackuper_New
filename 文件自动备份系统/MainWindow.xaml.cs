@@ -95,7 +95,8 @@ namespace FileBackuper
         private void RefreshListView()
         {
             SaveTasks();
-            background.LoadTasks();
+            background.Dispose();
+            background = new BackgroundWork();
         }
 
 

@@ -9,7 +9,7 @@ using static FileBackuper.GlobalDatas;
 
 namespace FileBackuper
 {
-    public class BackgroundWork:IDisposable
+    public class BackgroundWork : IDisposable
     {
         Task existTask = null;
         BackupCore currentCore;
@@ -36,6 +36,7 @@ namespace FileBackuper
         public BackgroundWork()
         {
             LoadTasks();
+            LoadFileSystemWatcher();
             timer = new Timer(1000);
             timer.Elapsed += MainTimerTickEventHandler;
 
@@ -61,7 +62,7 @@ namespace FileBackuper
                     }
                     taskInfos.Add(task);
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     WpfControls.Dialog.DialogHelper.ShowException($"无法加载位于{jsonPath}的配置文件", ex);
                 }
@@ -70,9 +71,14 @@ namespace FileBackuper
 
         private void MainTimerTickEventHandler(object sender, ElapsedEventArgs e)
         {
+            DateTime now = DateTime.Now;
+
             foreach (var task in taskInfos)
             {
-                DateTime now = DateTime.Now;
+                if (task.RealTime && task.LastBackupTime > now)
+                {
+                    continue;
+                }
                 switch (task.Status)
                 {
                     case TaskInfo.Statuses.BackingUp:
@@ -100,6 +106,50 @@ namespace FileBackuper
             }
 
         }
+        private Dictionary<WpfCodes.Basic.IO.Watcher, TaskInfo> watchers = new Dictionary<WpfCodes.Basic.IO.Watcher, TaskInfo>();
+
+        public void LoadFileSystemWatcher()
+        {
+            foreach (var task in taskInfos)
+            {
+                if (task.RealTime)
+                {
+                    task.DisplayStatus = "正在侦测";
+                    foreach (var path in task.WhiteList)
+                    {
+                        WpfCodes.Basic.IO.Watcher watcher = new WpfCodes.Basic.IO.Watcher(path, true);
+                        watchers.Add(watcher, task);
+                        watcher.RegistAllEvent();
+                        watcher.EveryChanged += (sender, e) =>
+                        {
+                            string strType = "";
+                            switch (e.ChangeType)
+                            {
+                                case WatcherChangeTypes.Changed:
+                                    strType = "修改";
+                                    break;
+                                case WatcherChangeTypes.Created:
+                                    strType = "创建";
+                                    break;
+                                case WatcherChangeTypes.Deleted:
+                                    strType = "删除";
+                                    break;
+                                case WatcherChangeTypes.Renamed:
+                                    strType = "重命名";
+                                    break;
+                            }
+                            task.LastBackupTime = DateTime.Now;
+                            LogHelper.AppendLog(task, "侦测到" + e.FullPath + "被" + strType);
+                        };
+                    }
+
+                }
+            }
+
+        }
+
+
+
 
         private void TryBackup(TaskInfo task)
         {
@@ -125,36 +175,46 @@ namespace FileBackuper
                 //}
                 //else//如果目录存在
                 //{
-                    //如果校验失败
+                //如果校验失败
 
-                    task.Status = TaskInfo.Statuses.BackingUp;
+                task.Status = TaskInfo.Statuses.BackingUp;
 
-                    currentCore = new BackupCore(task);
-                    Task t = new Task(currentCore.Backup);
-                    existTask = t;
-                    t.ContinueWith(p =>
+                currentCore = new BackupCore(task);
+                Task t = new Task(currentCore.Backup);
+                existTask = t;
+                t.ContinueWith(p =>
+                    {
+                        existTask = null;
+                        task.Status = TaskInfo.Statuses.Waiting;
+                        if (task.RealTime)
                         {
-                            existTask = null;
-                            task.Status = TaskInfo.Statuses.Waiting;
+                            task.LastBackupTime = DateTime.MaxValue;
+
+                            task.DisplayStatus = "正在侦测";
+                        }
+                        else
+                        {
                             task.LastBackupTime = DateTime.Now;
-                            if (needToStop)
+
+                        }
+                        if (needToStop)
+                        {
+                            timer.Stop();
+                            needToStop = false;
+                        }
+                        App.Current?.Dispatcher.Invoke(() =>
+                        {
+                            if (App.Current.MainWindow as MainWindow != null && App.Current.MainWindow.Visibility == System.Windows.Visibility.Visible)
                             {
-                                timer.Stop();
-                                needToStop = false;
+                                (App.Current.MainWindow as MainWindow).ResetButtons();
                             }
-                            App.Current.Dispatcher.Invoke(() =>
-                            {
-                                if (App.Current.MainWindow as MainWindow != null && App.Current.MainWindow.Visibility == System.Windows.Visibility.Visible)
-                                {
-                                    (App.Current.MainWindow as MainWindow).ResetButtons();
-                                }
 
-                            });
-                            TaskComplete?.Invoke(this, new TaskCompleteEventArgs(task));
                         });
-                    t.Start();
+                        TaskComplete?.Invoke(this, new TaskCompleteEventArgs(task));
+                    });
+                t.Start();
 
-               // }
+                // }
 
             }
             else//如果正在备份其他的东西
@@ -180,6 +240,11 @@ namespace FileBackuper
         public void Dispose()
         {
             timer.Stop();
+            foreach (var item in watchers)
+            {
+                item.Key.Dispose();
+            }
+            watchers.Clear();
         }
 
         public class TaskCompleteEventArgs : EventArgs
