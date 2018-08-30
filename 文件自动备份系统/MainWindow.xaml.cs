@@ -28,7 +28,7 @@ namespace FileBackuper
         #region 字段属性声明
         public MainWindow()
         {
-            DefautDialogOwner = this;
+            DefaultDialogOwner = this;
             InitializeComponent();
             lvwTasks.ItemsSource = taskInfos;//绑定任务列表数据
             chkStartup.IsChecked = WpfCodes.Program.Startup.WillRunWhenStartup("FileBackuper");

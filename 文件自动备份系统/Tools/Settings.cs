@@ -9,7 +9,6 @@ namespace FileBackuper
 {
     public class Settings : SettingsBase
     {
-        protected override string Path { get; set; } = "FileBackuperConfig.xml";
 
         public List<string> ConfigPaths { get; set; } = new List<string>();
 

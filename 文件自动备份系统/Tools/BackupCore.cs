@@ -229,6 +229,10 @@ namespace FileBackuper
 
                 try
                 {
+                    if(File.Exists(newFilePath))
+                    {
+                        File.Delete(newFilePath);
+                    }
                     File.Move(filePath, newFilePath);
                     AppendLog(task, $"重命名{filePath}为{newFilePath}成功");
 

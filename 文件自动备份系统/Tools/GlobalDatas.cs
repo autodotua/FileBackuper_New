@@ -10,11 +10,11 @@ namespace FileBackuper
 {
     public static class GlobalDatas
     {
-        public static Settings set = new Settings();
+        public static Settings set;
 
         public static ObservableCollection<TaskInfo> taskInfos = new ObservableCollection<TaskInfo>();//需要绑定的数据
 
-       public static BackgroundWork background = new BackgroundWork();
+        public static BackgroundWork background;
 
         public static WpfCodes.Program.TrayIcon tray;
 

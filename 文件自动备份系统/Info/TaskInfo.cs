@@ -14,7 +14,7 @@ namespace FileBackuper
         public string Name { get; set; } = "任务名称";
         public List<string> WhiteList { get; set; } = new List<string>();
         [JsonIgnore]
-        public string DisplayWhiteList => WpfCodes.Basic.Enumerable.StringListToString(WhiteList, "、");
+        public string DisplayWhiteList => String.Join("、",WhiteList);
         public List<string> BlackList { get; set; } = new List<string>();
         public string TargetRootDirectory { get; set; } = "";
         public bool RealTime { get; set; }

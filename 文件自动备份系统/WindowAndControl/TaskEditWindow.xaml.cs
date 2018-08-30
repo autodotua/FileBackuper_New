@@ -63,8 +63,8 @@ namespace FileBackuper
 
 
 
-            info.WhiteList = new List<string>(lbxWhite.Items.Cast<string>());
-            info.BlackList = new List<string>(lbxBlack.Items.Cast<string>());
+            info.WhiteList = new List<string>(lbxWhite.FileList);
+            info.BlackList = new List<string>(lbxBlack.FileList);
             info.TargetRootDirectory = txtTargetDirectory.Text;
             info.RealTime = cbbCheckMode.SelectedIndex ==1;
             info.Name = txtName.Text;
@@ -90,16 +90,16 @@ namespace FileBackuper
 
         private void WindowLoadedEventHandler(object sender, RoutedEventArgs e)
         {
-            DefautDialogOwner = this;
+            DefaultDialogOwner = this;
 
             foreach (var path in info.WhiteList)
             {
-                lbxWhite.Items.Add(path);
+                lbxWhite.FileList.Add(path);
             }
 
             foreach (var path in info.BlackList)
             {
-                lbxBlack.Items.Add(path);
+                lbxBlack.FileList.Add(path);
             }
 
             txtName.Text = info.Name;
@@ -117,13 +117,13 @@ namespace FileBackuper
                 case "1":
                     foreach (var name in files)
                     {
-                        lbxWhite.Items.Add(name);
+                        lbxWhite.FileList.Add(name);
                     }
                     break;
                 case "2":
                     foreach (var name in files)
                     {
-                        lbxBlack.Items.Add(name);
+                        lbxBlack.FileList.Add(name);
                     }
                     break;
                 case "3":
@@ -134,7 +134,7 @@ namespace FileBackuper
 
         private void WindowClosing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            DefautDialogOwner = App.Current.MainWindow;
+            DefaultDialogOwner = App.Current.MainWindow;
         }
 
         private void BtnDeleteClick(object sender, RoutedEventArgs e)
@@ -147,14 +147,14 @@ namespace FileBackuper
 
                     if (seletedItem != null)
                     {
-                        lbxWhite.Items.Remove(seletedItem);
+                        lbxWhite.FileList.Remove(seletedItem as string);
                     }
                     break;
                 case "2":
                     seletedItem = lbxBlack.SelectedItem;
                     if (seletedItem != null)
                     {
-                        lbxBlack.Items.Remove(seletedItem);
+                        lbxBlack.FileList.Remove(seletedItem as string);
                     }
                     break;
             }

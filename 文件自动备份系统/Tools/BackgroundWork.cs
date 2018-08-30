@@ -36,7 +36,6 @@ namespace FileBackuper
         public BackgroundWork()
         {
             LoadTasks();
-            LoadFileSystemWatcher();
             timer = new Timer(1000);
             timer.Elapsed += MainTimerTickEventHandler;
 
@@ -67,6 +66,22 @@ namespace FileBackuper
                     WpfControls.Dialog.DialogHelper.ShowException($"无法加载位于{jsonPath}的配置文件", ex);
                 }
             }
+
+            foreach (var task in taskInfos)
+            {
+                if (IsSourceExist(task))
+                {
+                    if (task.RealTime)
+                    {
+                        LoadFileSystemWatcher(task);
+                    }
+
+                }
+                else
+                {
+                    task.Status = TaskInfo.Statuses.Error;
+                }
+            }
         }
 
         private void MainTimerTickEventHandler(object sender, ElapsedEventArgs e)
@@ -75,7 +90,7 @@ namespace FileBackuper
 
             foreach (var task in taskInfos)
             {
-                if (task.RealTime && task.LastBackupTime > now)
+                if (task.RealTime && task.LastBackupTime > now && task.Status!=TaskInfo.Statuses.Error && task.Status != TaskInfo.Statuses.BackingUp && task.Status != TaskInfo.Statuses.InTheLine)
                 {
                     continue;
                 }
@@ -99,7 +114,17 @@ namespace FileBackuper
                         }
                         break;
                     case TaskInfo.Statuses.Error:
-                        task.DisplayStatus = "错误";
+                        if(IsSourceExist(task))
+                        {
+                            if(task.RealTime)
+                            {
+                                if(!watchers.ContainsValue(task))
+                                {
+                                    LoadFileSystemWatcher(task);
+                                }
+                            }
+                            task.Status = TaskInfo.Statuses.InTheLine;
+                        }
                         break;
                 }
 
@@ -108,44 +133,57 @@ namespace FileBackuper
         }
         private Dictionary<WpfCodes.Basic.IO.Watcher, TaskInfo> watchers = new Dictionary<WpfCodes.Basic.IO.Watcher, TaskInfo>();
 
-        public void LoadFileSystemWatcher()
-        {
-            foreach (var task in taskInfos)
-            {
-                if (task.RealTime)
-                {
-                    task.DisplayStatus = "正在侦测";
-                    foreach (var path in task.WhiteList)
-                    {
-                        WpfCodes.Basic.IO.Watcher watcher = new WpfCodes.Basic.IO.Watcher(path, true);
-                        watchers.Add(watcher, task);
-                        watcher.RegistAllEvent();
-                        watcher.EveryChanged += (sender, e) =>
-                        {
-                            string strType = "";
-                            switch (e.ChangeType)
-                            {
-                                case WatcherChangeTypes.Changed:
-                                    strType = "修改";
-                                    break;
-                                case WatcherChangeTypes.Created:
-                                    strType = "创建";
-                                    break;
-                                case WatcherChangeTypes.Deleted:
-                                    strType = "删除";
-                                    break;
-                                case WatcherChangeTypes.Renamed:
-                                    strType = "重命名";
-                                    break;
-                            }
-                            task.LastBackupTime = DateTime.Now;
-                            LogHelper.AppendLog(task, "侦测到" + e.FullPath + "被" + strType);
-                        };
-                    }
 
+
+        private bool IsSourceExist(TaskInfo task)
+        {
+            bool exist = true;
+            foreach (var path in task.WhiteList)
+            {
+                if (!Directory.Exists(path) && !File.Exists(path))
+                {
+                    exist = false;
+                    break;
                 }
             }
+            if (!exist)
+            {
+                task.DisplayStatus = "源不存在";
+                task.Status = TaskInfo.Statuses.Error;
+            }
+            return exist;
+        }
 
+        private void LoadFileSystemWatcher(TaskInfo task)
+        {
+            task.DisplayStatus = "正在侦测";
+            foreach (var path in task.WhiteList)
+            {
+                WpfCodes.Basic.IO.Watcher watcher = new WpfCodes.Basic.IO.Watcher(path, true);
+                watchers.Add(watcher, task);
+                watcher.RegistAllEvent();
+                watcher.EveryChanged += (sender, e) =>
+                {
+                    string strType = "";
+                    switch (e.ChangeType)
+                    {
+                        case WatcherChangeTypes.Changed:
+                            strType = "修改";
+                            break;
+                        case WatcherChangeTypes.Created:
+                            strType = "创建";
+                            break;
+                        case WatcherChangeTypes.Deleted:
+                            strType = "删除";
+                            break;
+                        case WatcherChangeTypes.Renamed:
+                            strType = "重命名";
+                            break;
+                    }
+                    task.LastBackupTime = DateTime.Now;
+                    LogHelper.AppendLog(task, "侦测到" + e.FullPath + "被" + strType);
+                };
+            }
         }
 
 

@@ -32,7 +32,7 @@
                 <GridView>
                     <GridViewColumn Header="名称"  DisplayMemberBinding="{Binding Path=Name}"/>
                     <GridViewColumn Header="源目录"  DisplayMemberBinding="{Binding Path=DisplayWhiteList}"/>
-                    <GridViewColumn Header="目标目录"  DisplayMemberBinding="{Binding Path=TargetDirectory}"/>
+                    <GridViewColumn Header="目标目录"  DisplayMemberBinding="{Binding Path=TargetRootDirectory}"/>
                     <GridViewColumn Header="间隔/缓冲"  DisplayMemberBinding="{Binding Path=DisplayInterval}"/>
                     <GridViewColumn Header="状态"  Width="288" DisplayMemberBinding="{Binding Path=DisplayStatus}"/>
                 </GridView>

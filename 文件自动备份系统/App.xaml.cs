@@ -42,6 +42,18 @@ namespace FileBackuper
             }
 
 #endif
+            string configFile = "FileBackuperConfig.json";
+            try
+            {
+                set = Settings.GetJsonSetting<Settings>(configFile);
+            }
+            catch (Exception ex)
+            {
+                WpfControls.Dialog.DialogHelper.ShowException("读取配置文件失败，将重置配置文件", ex, true);
+                set = Settings.CreatJsonSetting<Settings>(configFile);
+            }
+            background = new BackgroundWork();
+
 
             if (!(e.Args.Length == 1 && e.Args[0] == "noWindow"))
             {
